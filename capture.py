@@ -40,7 +40,19 @@ def capture_elements(url: str, tmp_dir: str, unit_id: str = "") -> list[str]:
                 filename = os.path.join(tmp_dir, f"{unit_id}{el_id.replace('unitCard','')}.png")
                 el.screenshot(filename)
                 filenames.append(filename)
+                print(f"✅ Captured {filename}")
     finally:
         driver.quit()
 
     return filenames
+
+def capture_multiple_units(base_url: str, units: list[str], tmp_dir: str) -> list[str]:
+    """Capture elements from multiple unit URLs."""
+    units = list(dict.fromkeys(units))
+    all_filenames = []
+    print(units)
+    for unit in units:
+        unit_url = f"{base_url}{unit}/"
+        filenames = capture_elements(unit_url, tmp_dir, unit)
+        all_filenames.extend(filenames)
+    return all_filenames
