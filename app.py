@@ -4,9 +4,11 @@ import zipfile
 import os
 from capture import capture_elements
 import shutil
-app = Flask(__name__)
+from flask_cors import CORS
 
-@app.route("/download_images/<unit_id>")
+app = Flask(__name__)
+CORS(app)
+@app.post("/download_images/<unit_id>")
 def download_images(unit_id):
     url = f"https://hcunits.net/units/{unit_id}/"
 
@@ -36,4 +38,4 @@ def download_images(unit_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+     app.run(host="0.0.0.0", port=5000, debug=True)
