@@ -42,6 +42,7 @@ def download_multiple_units():
         abort(400, "Missing 'units' in request body")
 
     units = data['units']
+    pdf = data['pdf'] if 'pdf' in data else False
     if not isinstance(units, list) or not all(isinstance(u, str) for u in units):
         abort(400, "'units' must be a list of strings")
 
@@ -50,6 +51,20 @@ def download_multiple_units():
     tmp_dir = tempfile.mkdtemp()
     try:
         capture_multiple_units(url, units, tmp_dir)
+        if pdf:
+            from pdf import images_to_pdf
+            output_pdf = os.path.join(tmp_dir, "all_units.pdf")
+            images_to_pdf(tmp_dir, output_pdf)
+
+            if not os.path.exists(output_pdf):
+                abort(500, "PDF file was not created")
+
+            return send_file(
+                output_pdf,
+                mimetype="application/pdf",
+                as_attachment=True,
+                download_name="all_units.pdf",
+            )
 
         zip_path = os.path.join(tmp_dir, "all_units_images.zip")
         with zipfile.ZipFile(zip_path, "w") as zipf:
