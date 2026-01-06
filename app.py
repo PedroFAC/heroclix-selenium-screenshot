@@ -1,4 +1,4 @@
-from flask import Flask, send_file, abort
+from flask import Flask, send_file, abort, request
 import tempfile
 import zipfile
 import os
@@ -7,7 +7,25 @@ import shutil
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(
+    app,
+    resources={r"/*": {
+        "origins": [
+            "https://heroclix-cards-screenshot.vercel.app",
+            "http://localhost:5173"
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "expose_headers": ["Content-Disposition"],
+        "supports_credentials": False,
+    }},
+)
+
+@app.before_request
+def handle_options():
+    if request.method == "OPTIONS":
+        return "", 204
+
 @app.post("/download_images/<unit_id>")
 def download_images(unit_id):
     url = f"https://hcunits.net/units/"
