@@ -32,7 +32,7 @@ def capture_elements(url: str, tmp_dir: str, unit_id: str = "") -> list[str]:
         time.sleep(5)
 
         all_elements = driver.find_elements(By.CSS_SELECTOR, '[id^="unitCard"]')
-        elements = [el for el in all_elements if el.get_attribute("id") != "unitCardsContainer"]
+        elements = [el for el in all_elements if el.get_attribute("id") != "unitCardsContainer" and el.get_attribute("id") != "unitCards"]
 
         for el in elements:
             el_id = el.get_attribute("id")
