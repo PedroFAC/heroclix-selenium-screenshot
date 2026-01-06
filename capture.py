@@ -7,8 +7,7 @@ import os
 import time
 
 
-def capture_elements(url: str, tmp_dir: str, unit_id: str = "") -> list[str]:
-    """Capture all unitCard elements and save images to tmp_dir."""
+def start_driver() -> webdriver.Chrome:
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
@@ -26,23 +25,26 @@ def capture_elements(url: str, tmp_dir: str, unit_id: str = "") -> list[str]:
         options=options
     )
 
+    return driver
+    
+
+def capture_elements(url: str, tmp_dir: str, driver: webdriver.Chrome, unit_id: str = "") -> list[str]:
+    """Capture all unitCard elements and save images to tmp_dir."""
     filenames = []
-    try:
-        driver.get(url)
-        time.sleep(5)
+    driver.get(url)
+    print(url)
+    time.sleep(1.5)
 
-        all_elements = driver.find_elements(By.CSS_SELECTOR, '[id^="unitCard"]')
-        elements = [el for el in all_elements if el.get_attribute("id") != "unitCardsContainer" and el.get_attribute("id") != "unitCards"]
+    all_elements = driver.find_elements(By.CSS_SELECTOR, '[id^="unitCard"]')
+    elements = [el for el in all_elements if el.get_attribute("id") != "unitCardsContainer" and el.get_attribute("id") != "unitCards"]
 
-        for el in elements:
-            el_id = el.get_attribute("id")
-            if el_id:
-                filename = os.path.join(tmp_dir, f"{unit_id}{el_id.replace('unitCard','')}.png")
-                el.screenshot(filename)
-                filenames.append(filename)
-                print(f"✅ Captured {filename}")
-    finally:
-        driver.quit()
+    for el in elements:
+        el_id = el.get_attribute("id")
+        if el_id:
+            filename = os.path.join(tmp_dir, f"{unit_id}{el_id.replace('unitCard','')}.png")
+            el.screenshot(filename)
+            filenames.append(filename)
+            print(f"✅ Captured {filename}")
 
     return filenames
 
@@ -51,8 +53,11 @@ def capture_multiple_units(base_url: str, units: list[str], tmp_dir: str) -> lis
     units = list(dict.fromkeys(units))
     all_filenames = []
     print(units)
+    driver = start_driver()
     for unit in units:
         unit_url = f"{base_url}{unit}/"
-        filenames = capture_elements(unit_url, tmp_dir, unit)
+        filenames = capture_elements(unit_url, tmp_dir, driver, unit)
         all_filenames.extend(filenames)
+
+    driver.quit()
     return all_filenames

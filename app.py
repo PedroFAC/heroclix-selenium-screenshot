@@ -10,11 +10,11 @@ app = Flask(__name__)
 CORS(app)
 @app.post("/download_images/<unit_id>")
 def download_images(unit_id):
-    url = f"https://hcunits.net/units/{unit_id}/"
+    url = f"https://hcunits.net/units/"
 
     tmp_dir = tempfile.mkdtemp()
     try:
-        files = capture_elements(url, tmp_dir, unit_id)
+        files = capture_multiple_units(url, [unit_id], tmp_dir)
         if not files:
             abort(404, "No elements found")
 
